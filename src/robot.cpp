@@ -52,7 +52,17 @@ Robot::Robot(const std::string &urdf_path)
     LOG_INFO << "Joint: " << joint_name << " [" << lower_limit << ", " << upper_limit << "]";
   }
 
+
+  // Geometry model
+  pinocchio::urdf::buildGeom(model_, urdf_path, pinocchio::VISUAL, geom_model_);
+  // geom_model_.addAllCollisionPairs();
+  // pinocchio::updateGeometryPlacements(model_, data_, geom_model_, geom_data_);
+
+
+  // Allocate memory for the Jacobian
   J_ = Eigen::MatrixXd(6, model_.nv);
+
+  // Seed the random number generator
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 

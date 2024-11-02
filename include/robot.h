@@ -5,6 +5,7 @@
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/spatial/se3.hpp>
+#include <pinocchio/algorithm/geometry.hpp>
 
 
 class Robot
@@ -42,6 +43,8 @@ public:
 
   pinocchio::Model model_;
   pinocchio::Data data_;
+  pinocchio::GeometryModel geom_model_;
+  pinocchio::GeometryData geom_data_;
 
 
 private:

@@ -29,6 +29,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(plog)
 
 FetchContent_Declare(
+    MeshcatCpp
+    GIT_REPOSITORY https://github.com/ami-iit/meshcat-cpp.git
+    GIT_TAG a84be7add7f344d61e615bee7f26e6a7d5444f2a
+)
+FetchContent_MakeAvailable(MeshcatCpp)
+
+FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG v2.13.6
@@ -39,6 +46,7 @@ FetchContent_MakeAvailable(pybind11)
 find_package(Threads REQUIRED)
 find_package(pinocchio REQUIRED)
 
+
 #############################################################
 # CPP
 #############################################################
@@ -46,6 +54,7 @@ add_executable(${PROJECT_NAME}_cpp
     src/logging.cpp
     src/main.cpp
     src/robot.cpp
+    src/meshcat_utilities.cpp
 )
 
 # Include directories
@@ -54,12 +63,14 @@ target_include_directories(${PROJECT_NAME}_cpp
     PRIVATE ${plog_SOURCE_DIR}/include
     PRIVATE ${PYBIND11_INCLUDE_DIR}
     PRIVATE ${pinocchio_SOURCE_DIR}/include
+    PRIVATE ${MeshcatCpp_SOURCE_DIR}/include
 )
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME}_cpp
     PRIVATE Threads::Threads
     PRIVATE pinocchio::pinocchio
+    PRIVATE MeshcatCpp::MeshcatCpp
 )
 
 # Set compile options, enable warnings
