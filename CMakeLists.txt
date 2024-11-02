@@ -6,11 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set name, version, and language of the project
-project(pybind_example VERSION 1.0.0 LANGUAGES CXX)
+project(safe_motion VERSION 1.0.0 LANGUAGES CXX)
 
 # Configure build
 set(CMAKE_BUILD_TYPE Debug)
-set(BUILD_PYTHON_BINDINGS ON CACHE BOOL "Build Python bindings")
+set(BUILD_PYTHON_BINDINGS OFF CACHE BOOL "Build Python bindings")
 
 # Define paths
 set(INCLUDE_DIR include)
@@ -37,6 +37,37 @@ FetchContent_MakeAvailable(pybind11)
 
 # Find libraries
 find_package(Threads REQUIRED)
+find_package(pinocchio REQUIRED)
+
+#############################################################
+# CPP
+#############################################################
+add_executable(${PROJECT_NAME}_cpp
+    src/logging.cpp
+    src/main.cpp
+    src/robot.cpp
+)
+
+# Include directories
+target_include_directories(${PROJECT_NAME}_cpp
+    PRIVATE ${INCLUDE_DIR}
+    PRIVATE ${plog_SOURCE_DIR}/include
+    PRIVATE ${PYBIND11_INCLUDE_DIR}
+    PRIVATE ${pinocchio_SOURCE_DIR}/include
+)
+
+# Link libraries
+target_link_libraries(${PROJECT_NAME}_cpp
+    PRIVATE Threads::Threads
+    PRIVATE pinocchio::pinocchio
+)
+
+# Set compile options, enable warnings
+target_compile_options(${PROJECT_NAME}_cpp PRIVATE
+$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -O3>
+$<$<CXX_COMPILER_ID:MSVC>:/W3 /O3>
+)
+
 
 
 
@@ -58,7 +89,7 @@ set(PYTHON_BINDINGS_EXECUTABLE ${PROJECT_NAME}_python)
 # Define the module to be built with pybind11
 pybind11_add_module(${PROJECT_NAME}
     src/logging.cpp
-    src/main.cpp
+    src/python_bindings.cpp
 )
 
 # Include directories
