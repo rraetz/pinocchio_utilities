@@ -226,6 +226,25 @@ int main()
             }
         }
 
+
+
+        for (std::size_t cp_index = 0; cp_index < robot.geom_model_.collisionPairs.size(); ++cp_index)
+        {
+            const pinocchio::CollisionPair & cp = robot.geom_model_.collisionPairs[cp_index];
+            const bool is_pair_active = robot.geom_data_.activeCollisionPairs[cp_index];
+            const bool is_first_enabled = !robot.geom_model_.geometryObjects[cp.first].disableCollision;
+            const bool is_second_enabled = !robot.geom_model_.geometryObjects[cp.second].disableCollision;
+
+            if ( is_pair_active && is_first_enabled && is_second_enabled)
+            {
+                computeDistance(robot.geom_model_, robot.geom_data_, cp_index);
+                double distance = robot.geom_data_.distanceResults[cp_index].min_distance;
+                LOG_INFO << "cp_index: " << cp_index << " min_distance: " << distance;
+            }
+        }
+
+
+
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
