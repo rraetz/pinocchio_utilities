@@ -14,8 +14,10 @@
 #include <MeshcatCpp/Shape.h>
 #include "meshcat_utilities.h"
 
+#include "pinocchio/multibody/geometry.hpp"
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/data.hpp>
+#include "pinocchio/algorithm/kinematics.hpp"
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/algorithm/geometry.hpp>
 #include <pinocchio/collision/collision.hpp>
@@ -74,35 +76,27 @@ const GeometryType detect_geometry_type(const pinocchio::GeometryObject& object)
 }
 
 
-void addBox(pinocchio::Model& model, pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double x, double y, double z) {
-    pinocchio::FrameIndex frame = model.addFrame(
-        pinocchio::Frame(name, 0, 0, pose, pinocchio::BODY)
-    );
+void addBox(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double x, double y, double z) 
+{
+    // pinocchio::FrameIndex frame = model.addFrame(
+    //     pinocchio::Frame(name, 0, 0, pose, pinocchio::BODY)
+    // );
     auto geometry = std::make_shared<hpp::fcl::Box>(x, y, z);
-    geom_model.addGeometryObject(
-        pinocchio::GeometryObject(name, frame, 0, pose, geometry, "", Eigen::Vector3d::Ones())
-    );
+    geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
 }
 
-void addSphere(pinocchio::Model& model, pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius) {
-    pinocchio::FrameIndex frame = model.addFrame(
-        pinocchio::Frame(name, 0, 0, pose, pinocchio::BODY)
-    );
+void addSphere(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius) 
+{
     auto geometry = std::make_shared<hpp::fcl::Sphere>(radius);
-    geom_model.addGeometryObject(
-        pinocchio::GeometryObject(name, frame, 0, pose, geometry, "", Eigen::Vector3d::Ones())
-    );
+    geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
 }
 
-void addCylinder(pinocchio::Model& model, pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius, double length) {
-    pinocchio::FrameIndex frame = model.addFrame(
-        pinocchio::Frame(name, 0, 0, pose, pinocchio::BODY)
-    );
+void addCylinder(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius, double length) 
+{
     auto geometry = std::make_shared<hpp::fcl::Cylinder>(radius, length);
-    geom_model.addGeometryObject(
-        pinocchio::GeometryObject(name, frame, 0, pose, geometry, "", Eigen::Vector3d::Ones())
-    );
+    geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
 }
+
 
 
 void add_geometry_model_to_meshcat(MeshcatCpp::Meshcat& meshcat, const pinocchio::GeometryModel& geom_model)
@@ -125,8 +119,7 @@ void add_geometry_model_to_meshcat(MeshcatCpp::Meshcat& meshcat, const pinocchio
       const double y = box.halfSide[1]*2;
       const double z = box.halfSide[2]*2;
       meshcat.set_object(object.name, MeshcatCpp::Box(x, y, z), m);
-      meshcat.set_transform(object.name, SE3_to_matrix_view(object.placement));
-      LOG_INFO << "Box with name " << object.name << " added";
+      LOG_DEBUG << "Box with name " << object.name << " added to Meshcat";
     }
 
     else if (geometry_type == GeometryType::SPHERE)
@@ -134,8 +127,7 @@ void add_geometry_model_to_meshcat(MeshcatCpp::Meshcat& meshcat, const pinocchio
       auto sphere = *(std::dynamic_pointer_cast<hpp::fcl::Sphere>(object.geometry));
       const double radius = sphere.radius;
       meshcat.set_object(object.name, MeshcatCpp::Sphere(radius), m);
-      meshcat.set_transform(object.name, SE3_to_matrix_view(object.placement));
-      LOG_INFO << "Sphere with name " << object.name << " added";
+      LOG_DEBUG << "Sphere with name " << object.name << " added to Meshcat";
     }
 
     else if (geometry_type == GeometryType::CYLINDER)
@@ -145,8 +137,7 @@ void add_geometry_model_to_meshcat(MeshcatCpp::Meshcat& meshcat, const pinocchio
       const double radius = cylinder.radius;
       const double length = cylinder.halfLength*2;
       meshcat.set_object(object.name, MeshcatCpp::Cylinder(radius, length), m);
-      meshcat.set_transform(object.name, SE3_to_matrix_view(object.placement));
-      LOG_INFO << "Cylinder with name " << object.name << " added";
+      LOG_DEBUG << "Cylinder with name " << object.name << " added to Meshcat";
     }
       
     else if (geometry_type == GeometryType::MESH)
@@ -157,74 +148,92 @@ void add_geometry_model_to_meshcat(MeshcatCpp::Meshcat& meshcat, const pinocchio
           " ending is capitalized. Please use lowercase instead.";
       }
       meshcat.set_object(object.name, MeshcatCpp::Mesh(mesh_path), m);
-      meshcat.set_transform(object.name, SE3_to_matrix_view(object.placement));
-      LOG_INFO << "Mesh with name " << object.name << " added";
+      LOG_DEBUG << "Mesh with name " << object.name << " added to Meshcat";
     }
-
-    LOG_INFO << "Pose: \n" << object.placement;
   }
 }
 
 
+void update_meshcat_geometry_poses(MeshcatCpp::Meshcat& meshcat, const pinocchio::GeometryModel& geom_model, const pinocchio::GeometryData& geom_data)
+{
+    for (pinocchio::GeomIndex id=0; id < geom_model.ngeoms; ++id)
+    {
+        const auto& object = geom_model.geometryObjects[id];
+        auto pose = geom_data.oMg[id];
+        LOG_DEBUG << "Updating pose for object " << object.name << " with pose: \n" << pose;
+        meshcat.set_transform(object.name, SE3_to_matrix_view(pose));
+    }
+}
+   
+
+
 int main()
 {
-  init_logging();
-
-  const std::string TARGET_LINK_NAME = "tool_frame";
-  const std::string urdf_path = "robots/gen3.urdf";
-  Robot robot(urdf_path);
-
-  auto random_pose = robot.random_valid_pose(TARGET_LINK_NAME);
-  LOG_INFO << "random pose: \n" << random_pose;
+    init_logging();
 
 
+    pinocchio::Model model;
+    pinocchio::GeometryModel geom_model;
+    MeshcatCpp::Meshcat meshcat;
 
-  pinocchio::Model model;
-  pinocchio::GeometryModel geom_model;
-  MeshcatCpp::Meshcat meshcat;
+    const std::string TARGET_LINK_NAME = "tool_frame";
+    const std::string urdf_path = "../robots/gen3.urdf";
+    Robot robot(urdf_path);
 
-  LOG_INFO << "Adding geometry objects...";
-
-  pinocchio::SE3 cube_pose = pinocchio::SE3::Identity();
-  addBox(model, geom_model, "cube", cube_pose, 0.2, 0.5, 0.1);
-  
-  pinocchio::SE3 sphere_pose = pinocchio::SE3::Identity();
-  addSphere(model, geom_model, "sphere", sphere_pose, 0.1);
-
-  pinocchio::SE3 cylinder_pose = pinocchio::SE3::Identity();
-  addCylinder(model, geom_model, "cylinder", cylinder_pose, 0.05, 1.0);
-
-
-  geom_model.addAllCollisionPairs();
-  pinocchio::Data data(model);
-  pinocchio::GeometryData geom_data(geom_model);
-
-  if (!model.check(data)) {
-    throw std::runtime_error("Model and data are not consistent!");
-  }
-
-
-  // pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data);
- 
-
-  add_geometry_model_to_meshcat(meshcat, geom_model);
-
-  add_geometry_model_to_meshcat(meshcat, robot.geom_model_);
-
-  meshcat.join();
+    // auto random_pose = robot.random_valid_pose(TARGET_LINK_NAME);
+    // LOG_INFO << "random pose: \n" << random_pose;
 
 
 
 
-  // // Compute distances and get the shortest distance and direction
-  // LOG_INFO << "Computing distances...";
-  // std::vector<DistanceResult> results = check_distance_and_direction(geom_model, geom_data);
 
-  // // Print results
-  // LOG_INFO << "Results:";
-  // for (size_t i = 0; i < results.size(); ++i) {
-  //     LOG_INFO << "Capsule " << i << " - Distance: " << results[i].distance << " Direction: " << results[i].direction.transpose() << std::endl;
-  // }
+    LOG_INFO << "Adding geometry objects...";
+
+    pinocchio::SE3 cube_pose = pinocchio::SE3::Identity();
+    addBox(geom_model, "cube", cube_pose, 0.2, 0.5, 0.1);
+
+    geom_model.addAllCollisionPairs();
+    // pinocchio::Data data(model);
+    pinocchio::GeometryData geom_data(geom_model);
+    
+    pinocchio::SE3 sphere_pose = pinocchio::SE3::Identity();
+    addSphere(geom_model, "sphere", sphere_pose, 0.1);
+
+
+    add_geometry_model_to_meshcat(meshcat, robot.geom_model_);
+
+    for (int i=0; i<30; i++)
+    {
+
+        LOG_INFO << "Updating robot ...";
+        auto q = robot.random_valid_joint_positions();
+        robot.update_joint_positions(q);
+
+        pinocchio::updateGeometryPlacements(robot.model_, robot.data_, robot.geom_model_, robot.geom_data_);
+        update_meshcat_geometry_poses(meshcat, robot.geom_model_, robot.geom_data_);
+
+        // sleep for 1 second
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    // add_geometry_model_to_meshcat(meshcat, geom_model);
+    // update_meshcat_geometry_poses(meshcat, geom_model, geom_data);
+    
+
+    meshcat.join();
+
+
+
+
+    // // Compute distances and get the shortest distance and direction
+    // LOG_INFO << "Computing distances...";
+    // std::vector<DistanceResult> results = check_distance_and_direction(geom_model, geom_data);
+
+    // // Print results
+    // LOG_INFO << "Results:";
+    // for (size_t i = 0; i < results.size(); ++i) {
+    //     LOG_INFO << "Capsule " << i << " - Distance: " << results[i].distance << " Direction: " << results[i].direction.transpose() << std::endl;
+    // }
 
 }
 
