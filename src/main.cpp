@@ -160,7 +160,7 @@ void update_meshcat_geometry_poses(MeshcatCpp::Meshcat& meshcat, const pinocchio
     {
         const auto& object = geom_model.geometryObjects[id];
         auto pose = geom_data.oMg[id];
-        LOG_DEBUG << "Updating pose for object " << object.name << " with pose: \n" << pose;
+        // LOG_DEBUG << "Updating pose for object " << object.name << " with pose: \n" << pose;
         meshcat.set_transform(object.name, SE3_to_matrix_view(pose));
     }
 }
@@ -180,49 +180,39 @@ int main()
     const std::string urdf_path = "../robots/gen3.urdf";
     Robot robot(urdf_path);
 
-    // auto random_pose = robot.random_valid_pose(TARGET_LINK_NAME);
-    // LOG_INFO << "random pose: \n" << random_pose;
-
-
-
-
 
     LOG_INFO << "Adding geometry objects...";
-
     pinocchio::SE3 cube_pose = pinocchio::SE3::Identity();
+    cube_pose.translation() << 0, 0.5, 0.3;
     addBox(geom_model, "cube", cube_pose, 0.2, 0.5, 0.1);
-
-    geom_model.addAllCollisionPairs();
-    // pinocchio::Data data(model);
-    pinocchio::GeometryData geom_data(geom_model);
-    
     pinocchio::SE3 sphere_pose = pinocchio::SE3::Identity();
+    sphere_pose.translation() << -0.2, -0.3, 0.5;
     addSphere(geom_model, "sphere", sphere_pose, 0.1);
 
+    // Create data containers for environment
+    pinocchio::Data data(model);
+    pinocchio::GeometryData geom_data(geom_model);
 
+    // Add geometry objects to meshcat
+    add_geometry_model_to_meshcat(meshcat, geom_model);
     add_geometry_model_to_meshcat(meshcat, robot.geom_model_);
 
-    for (int i=0; i<30; i++)
-    {
+    // Update static objects in meshcat
+    pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data);
+    update_meshcat_geometry_poses(meshcat, geom_model, geom_data);
 
-        LOG_INFO << "Updating robot ...";
+    for (int i=0; i<50; i++)
+    {
         auto q = robot.random_valid_joint_positions();
         robot.update_joint_positions(q);
 
         pinocchio::updateGeometryPlacements(robot.model_, robot.data_, robot.geom_model_, robot.geom_data_);
         update_meshcat_geometry_poses(meshcat, robot.geom_model_, robot.geom_data_);
 
-        // sleep for 1 second
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
-    // add_geometry_model_to_meshcat(meshcat, geom_model);
-    // update_meshcat_geometry_poses(meshcat, geom_model, geom_data);
-    
-
     meshcat.join();
-
-
 
 
     // // Compute distances and get the shortest distance and direction

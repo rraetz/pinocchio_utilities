@@ -57,9 +57,6 @@ Robot::Robot(const std::string &urdf_path)
   pinocchio::urdf::buildGeom(model_, urdf_path, pinocchio::VISUAL, geom_model_);
   geom_data_ = pinocchio::GeometryData(geom_model_);
 
-  // geom_model_.addAllCollisionPairs();
-  // pinocchio::updateGeometryPlacements(model_, data_, geom_model_, geom_data_);
-
 
   // Allocate memory for the Jacobian
   J_ = Eigen::MatrixXd(6, model_.nv);
