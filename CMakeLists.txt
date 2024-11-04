@@ -75,8 +75,8 @@ target_link_libraries(${PROJECT_NAME}_cpp
 
 # Set compile options, enable warnings
 target_compile_options(${PROJECT_NAME}_cpp PRIVATE
-$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -O3>
-$<$<CXX_COMPILER_ID:MSVC>:/W3 /O3>
+$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -O0>
+$<$<CXX_COMPILER_ID:MSVC>:/W0 /O0>
 )
 
 

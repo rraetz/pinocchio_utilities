@@ -201,13 +201,30 @@ int main()
     pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data);
     update_meshcat_geometry_poses(meshcat, geom_model, geom_data);
 
+
+
     for (int i=0; i<50; i++)
     {
-        auto q = robot.random_valid_joint_positions();
+        // Exagerated joint positions
+        auto q = robot.random_valid_joint_positions()*2;
         robot.update_joint_positions(q);
 
         pinocchio::updateGeometryPlacements(robot.model_, robot.data_, robot.geom_model_, robot.geom_data_);
         update_meshcat_geometry_poses(meshcat, robot.geom_model_, robot.geom_data_);
+
+        pinocchio::computeCollisions(robot.geom_model_, robot.geom_data_);
+
+        // Print the status of all the collision pairs
+        for (size_t k = 0; k < robot.geom_model_.collisionPairs.size(); ++k)
+        {
+            const pinocchio::CollisionPair & cp = robot.geom_model_.collisionPairs[k];
+            const hpp::fcl::CollisionResult & cr = robot.geom_data_.collisionResults[k];
+
+            if (cr.isCollision())
+            {
+                LOG_INFO << "collision: " << cp.first << " , " << cp.second;
+            }
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
