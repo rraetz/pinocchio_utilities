@@ -53,7 +53,6 @@ Robot::Robot(const std::string &urdf_path)
   }
 
 
-  // Geometry model & data
   pinocchio::urdf::buildGeom(model_, urdf_path, pinocchio::COLLISION, geom_model_);
   geom_model_.addAllCollisionPairs();
   // Remove collisions of adjacent geometries
