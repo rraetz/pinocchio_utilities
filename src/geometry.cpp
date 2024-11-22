@@ -37,7 +37,7 @@ bool has_collision(const pinocchio::GeometryModel& geom_model, const pinocchio::
             return_value = true;
             const auto &name1 = geom_model.geometryObjects[cp.first].name;
             const auto &name2 = geom_model.geometryObjects[cp.second].name;
-            LOG_DEBUG << "Collision: " << name1 << " <-> " << name2;
+            // LOG_DEBUG << "Collision: " << name1 << " <-> " << name2;
         }
     }
     return return_value;
@@ -65,5 +65,24 @@ void append_collision_pair_mapping(pinocchio::GeometryModel &combined_geom_model
         const auto second = pair.second + old_size;
         combined_geom_model.collisionPairMapping(first, second) = pair_index + n_old_collision_pairs;
         combined_geom_model.collisionPairMapping(second, first) = pair_index + n_old_collision_pairs;
+    }
+}
+
+
+void compute_distances(const pinocchio::GeometryModel &geom_model, pinocchio::GeometryData &geom_data)
+{
+    pinocchio::computeDistances(geom_model, geom_data);
+    for (size_t cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
+    {
+        const auto &result = geom_data.distanceResults[cp_index];
+        const pinocchio::CollisionPair & cp = geom_model.collisionPairs[cp_index];
+        const auto &name1 = geom_model.geometryObjects[cp.first].name;
+        const auto &name2 = geom_model.geometryObjects[cp.second].name;
+        const double distance = result.min_distance;
+        const auto &p1 = result.nearest_points[0];
+        const auto &p2 = result.nearest_points[1];
+        const auto position_delta = p1-p2;
+        LOG_DEBUG << "Distance: " << name1 << " <-> " << name2 << ": " << distance;
+        LOG_DEBUG << "Position delta: " << position_delta;
     }
 }

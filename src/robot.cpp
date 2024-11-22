@@ -61,6 +61,8 @@ Robot::Robot(const std::string &urdf_path)
     auto collision_pair = pinocchio::CollisionPair(id, id+1);
     geom_model_.removeCollisionPair(collision_pair);
   }
+  geom_model_.removeAllCollisionPairs();
+
   geom_data_ = pinocchio::GeometryData(geom_model_);
 
 

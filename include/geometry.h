@@ -14,4 +14,9 @@ void add_cylinder(pinocchio::GeometryModel& geom_model, const std::string& name,
 bool has_collision(const pinocchio::GeometryModel& geom_model, const pinocchio::GeometryData& geom_data);
 
 // To be called after pinocchio::appendGeometryModel()
-void append_collision_pair_mapping(pinocchio::GeometryModel &combined_geom_model, const pinocchio::GeometryModel &source_geom_model);
+void append_collision_pair_mapping(
+    pinocchio::GeometryModel &combined_geom_model, 
+    const pinocchio::GeometryModel &source_geom_model);
+
+void compute_distances(const pinocchio::GeometryModel &geom_model, pinocchio::GeometryData &geom_data);
+

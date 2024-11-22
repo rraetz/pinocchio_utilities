@@ -31,22 +31,32 @@ MeshcatCpp::MatrixView<double> SE3_to_matrix_view(const pinocchio::SE3 &transfor
 const GeometryType detect_geometry_type(const pinocchio::GeometryObject& object) 
 {
     std::shared_ptr<hpp::fcl::CollisionGeometry> geometry = object.geometry;
-    if (object.meshPath != "") {
-        return GeometryType::MESH;
-    } else if (std::dynamic_pointer_cast<hpp::fcl::Box>(geometry)) {
+
+    if (std::dynamic_pointer_cast<hpp::fcl::Box>(geometry)) 
+    {
         return GeometryType::BOX;
-    } else if (std::dynamic_pointer_cast<hpp::fcl::Sphere>(geometry)) {
+    } 
+    else if (std::dynamic_pointer_cast<hpp::fcl::Sphere>(geometry)) 
+    {
         return GeometryType::SPHERE;
-    } else if (std::dynamic_pointer_cast<hpp::fcl::Cylinder>(geometry)) {
+    } 
+    else if (std::dynamic_pointer_cast<hpp::fcl::Cylinder>(geometry)) 
+    {
         return GeometryType::CYLINDER;
-    } else {
-        throw std::runtime_error("Geometry type not supported");
+    } 
+    else if (!object.meshPath.empty()) 
+    {
+        return GeometryType::MESH;
     }
+
+    throw std::runtime_error("Geometry type not supported");
 }
+
 
 
 void add_geometry_model_to_meshcat(MeshcatCpp::Meshcat& meshcat, const pinocchio::GeometryModel& geom_model)
 {
+  LOG_DEBUG << "Adding geometry objects to Meshcat...";
   static MeshcatCpp::Material m;
   for (const auto& object : geom_model.geometryObjects) 
   {
