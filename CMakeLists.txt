@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set name, version, and language of the project
 project(safe_motion VERSION 1.0.0 LANGUAGES CXX)
 
-# Configure build
+# Configure build 
 set(CMAKE_BUILD_TYPE Debug)
 
 # Define paths
