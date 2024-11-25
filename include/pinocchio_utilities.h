@@ -4,6 +4,9 @@
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/data.hpp>
 #include <pinocchio/algorithm/geometry.hpp>
+#include <pinocchio/spatial/se3.hpp>
+#include "pinocchio/algorithm/joint-configuration.hpp"
+#include <pinocchio/collision/collision.hpp>
 
 void add_box_geometry(
     pinocchio::GeometryModel& geom_model, 
@@ -33,4 +36,19 @@ void append_collision_pair_mapping(
     const pinocchio::GeometryModel &source_geom_model);
 
 void compute_distances(const pinocchio::GeometryModel &geom_model, pinocchio::GeometryData &geom_data);
+
+// Add collision pairs between each robot link and each object in the environment to a combined geometry model
+void enable_collisions_between_robot_and_environment(
+    pinocchio::GeometryModel &combined_geom_model, 
+    const pinocchio::GeometryModel &robot_geom_model, 
+    const pinocchio::GeometryModel &env_geom_model);
+
+
+void load_robot_from_urdf(
+    const std::string &urdf_path, 
+    pinocchio::Model &model, 
+    pinocchio::Data &data, 
+    pinocchio::GeometryModel &geom_model,
+    pinocchio::GeometryData &geom_data,
+    bool enable_self_collisions);
 

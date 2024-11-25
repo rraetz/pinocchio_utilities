@@ -47,9 +47,8 @@ find_package(pinocchio REQUIRED)
 add_executable(${PROJECT_NAME}_cpp
     src/logging.cpp
     src/main.cpp
-    src/robot.cpp
     src/meshcat_utilities.cpp
-    src/geometry.cpp
+    src/pinocchio_utilities.cpp
 )
 
 # Include directories
