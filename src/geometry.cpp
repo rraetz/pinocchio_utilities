@@ -1,7 +1,12 @@
 #include "geometry.h"
 #include "logging.h"
 
-void add_box(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double x, double y, double z) 
+#include <pinocchio/collision/collision.hpp>
+// #include <pinocchio/collision/broadphase.hpp>
+// #include <hpp/fcl/distance.h>
+
+
+void add_box_geometry(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double x, double y, double z) 
 {
     auto geometry = std::make_shared<hpp::fcl::Box>(x, y, z);
     geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
@@ -9,7 +14,7 @@ void add_box(pinocchio::GeometryModel& geom_model, const std::string& name, cons
 }
 
 
-void add_sphere(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius) 
+void add_sphere_geometry(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius) 
 {
     auto geometry = std::make_shared<hpp::fcl::Sphere>(radius);
     geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
@@ -17,7 +22,7 @@ void add_sphere(pinocchio::GeometryModel& geom_model, const std::string& name, c
 }
 
 
-void add_cylinder(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius, double length) 
+void add_cylinder_geometry(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius, double length) 
 {
     auto geometry = std::make_shared<hpp::fcl::Cylinder>(radius, length);
     geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
