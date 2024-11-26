@@ -6,10 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set name, version, and language of the project
-project(safe_motion VERSION 1.0.0 LANGUAGES CXX)
+project(pinocchio_utilities VERSION 1.0.0 LANGUAGES CXX)
 
 # Configure build 
 set(CMAKE_BUILD_TYPE Debug)
+option(LOGGING "Print logs to the console" ON) 
 
 # Define paths
 set(INCLUDE_DIR include)
@@ -41,18 +42,12 @@ list(APPEND CMAKE_PREFIX_PATH "/opt/openrobots")
 find_package(pinocchio REQUIRED)
 
 
-#############################################################
-# CPP
-#############################################################
-add_executable(${PROJECT_NAME}_cpp
-    src/logging.cpp
-    src/main.cpp
-    src/meshcat_utilities.cpp
-    src/pinocchio_utilities.cpp
+add_executable(${PROJECT_NAME}_example
+    src/example.cpp
 )
 
 # Include directories
-target_include_directories(${PROJECT_NAME}_cpp
+target_include_directories(${PROJECT_NAME}_example
     PRIVATE ${INCLUDE_DIR}
     PRIVATE ${plog_SOURCE_DIR}/include
     PRIVATE ${PYBIND11_INCLUDE_DIR}
@@ -61,15 +56,21 @@ target_include_directories(${PROJECT_NAME}_cpp
 )
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME}_cpp
+target_link_libraries(${PROJECT_NAME}_example
     PRIVATE Threads::Threads
     PRIVATE pinocchio::pinocchio
     PRIVATE MeshcatCpp::MeshcatCpp
 )
 
+# Logging
+if(${LOGGING})
+    target_compile_definitions(${PROJECT_NAME}_example PRIVATE LOGGING)
+endif()
+
 # Set compile options, enable warnings
 set(OPTIMIZATION_LEVEL 3)
-target_compile_options(${PROJECT_NAME}_cpp PRIVATE
+target_compile_options(${PROJECT_NAME}_example PRIVATE
 $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wall -O${OPTIMIZATION_LEVEL}>
 $<$<CXX_COMPILER_ID:MSVC>:/W0 /O${OPTIMIZATION_LEVEL}>
 )
+

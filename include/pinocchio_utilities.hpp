@@ -1,12 +1,16 @@
-#include "pinocchio_utilities.h"
-#include "logging.h"
+#pragma once
 
+#include "logging.hpp"
+
+#include "pinocchio/multibody/geometry.hpp"
+#include <pinocchio/multibody/model.hpp>
+#include <pinocchio/multibody/data.hpp>
+#include <pinocchio/spatial/se3.hpp>
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include <pinocchio/collision/collision.hpp>
 #include <pinocchio/parsers/urdf.hpp>
 
-
-
-void add_box_geometry(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double x, double y, double z) 
+void add_box(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double x, double y, double z) 
 {
     auto geometry = std::make_shared<hpp::fcl::Box>(x, y, z);
     geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
@@ -14,7 +18,7 @@ void add_box_geometry(pinocchio::GeometryModel& geom_model, const std::string& n
 }
 
 
-void add_sphere_geometry(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius) 
+void add_sphere(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius) 
 {
     auto geometry = std::make_shared<hpp::fcl::Sphere>(radius);
     geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
@@ -22,7 +26,7 @@ void add_sphere_geometry(pinocchio::GeometryModel& geom_model, const std::string
 }
 
 
-void add_cylinder_geometry(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius, double length) 
+void add_cylinder(pinocchio::GeometryModel& geom_model, const std::string& name, const pinocchio::SE3& pose, double radius, double length) 
 {
     auto geometry = std::make_shared<hpp::fcl::Cylinder>(radius, length);
     geom_model.addGeometryObject(pinocchio::GeometryObject(name, 0, 0, pose, geometry));
@@ -49,7 +53,7 @@ bool has_collision(const pinocchio::GeometryModel& geom_model, const pinocchio::
     return return_value;
 }
 
-
+// To be called after pinocchio::appendGeometryModel()
 void append_collision_pair_mapping(pinocchio::GeometryModel &combined_geom_model, const pinocchio::GeometryModel &source_geom_model)
 {
     // Assumes that the new geometry models are already merged!!!

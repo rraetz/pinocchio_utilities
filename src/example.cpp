@@ -4,9 +4,9 @@
 #include <string>
 #include <random>
 
-#include "logging.h"
-#include "meshcat_utilities.h"
-#include "pinocchio_utilities.h"
+#include "logging.hpp"
+#include "meshcat_utilities.hpp"
+#include "pinocchio_utilities.hpp"
 
 
 
@@ -38,7 +38,7 @@ int main()
     {
         pinocchio::SE3 sphere_pose = pinocchio::SE3::Identity();
         sphere_pose.translation() << 0.5*rand()/RAND_MAX, 0.5*rand()/RAND_MAX, 0.5*rand()/RAND_MAX;
-        add_sphere_geometry(env_geom_model, "sphere"+std::to_string(i), sphere_pose, 0.1);
+        add_sphere(env_geom_model, "sphere"+std::to_string(i), sphere_pose, 0.1);
     }
 
     // Fill data container for environment
@@ -67,7 +67,7 @@ int main()
     {
         auto start_time = std::chrono::high_resolution_clock::now();
 
-        auto q = pinocchio::randomConfiguration(robot_model) *2.0;
+        auto q = pinocchio::randomConfiguration(robot_model) * 2.0; // To also check self-collisions
         pinocchio::forwardKinematics(robot_model, robot_data, q);
         pinocchio::updateGeometryPlacements(robot_model, robot_data, combined_geom_model, combined_geom_data);
 
@@ -77,7 +77,7 @@ int main()
 
         auto end_time = std::chrono::high_resolution_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-        LOG_INFO << "Elapsed time: " << elapsed_time.count()*1e-3 << " ms";
+        LOG_DEBUG << "Elapsed time: " << elapsed_time.count()*1e-3 << " ms";
 
         update_meshcat_geometry_poses(meshcat, combined_geom_model, combined_geom_data);
 

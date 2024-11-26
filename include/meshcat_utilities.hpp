@@ -1,14 +1,15 @@
-#include "meshcat_utilities.h"
-#include "logging.h"
+#pragma once
+
+#include "logging.hpp"
 
 #include <MeshcatCpp/Material.h>
 #include <MeshcatCpp/Meshcat.h>
 #include <MeshcatCpp/Shape.h>
-#include "meshcat_utilities.h"
-
+#include <pinocchio/spatial/se3.hpp>
+#include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include <pinocchio/multibody/data.hpp>
-#include <pinocchio/algorithm/geometry.hpp>
+
 
 enum GeometryType 
 {
