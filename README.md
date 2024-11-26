@@ -44,4 +44,14 @@ Meshcat is a tool to visualize robots in the browser. It is not necessary for th
 The example uses Plog as logging library. This dependency is also directly resolved in the CMakeLists.txt.
 
 ## Example Usage
-The /src folder contains a simple example of how to use Pinocchio to run collision checking of a robot with a static environment. Build using CMake and run the executable. Also check the CMakeLists.txt file for the necessary dependencies.
+The /src folder contains a simple example of how to use Pinocchio to run collision checking of a robot with a static environment. Build using CMake: 
+```
+mkdir build && cd build
+cmake ..
+make
+```
+Run the example (from inside the root folder):
+```
+./build/pinocchio_utilities_example
+```
+Connect to http://127.0.0.1:7001/ for the Meshcat visualization.
