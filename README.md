@@ -1,7 +1,9 @@
 # Instructions
 
 ## Install dependencies:
-The installation of Pinocchio can be a bit tricky, especially on non-x86_64 platforms. Here are instructions that should also build on aarch64.
+### Pinocchio
+On an x86_64 platform, you can install Pinocchio as indicated [here](https://stack-of-tasks.github.io/pinocchio/download.html). Below are instructions for non-x86_64 platforms. The easiest is to install it through ROS2 as the binaries are already available.
+
 Urdfdom:
 ```
 sudo apt-get install liburdfdom-dev liburdfdom-headers-dev libtinyxml2-dev
@@ -33,6 +35,13 @@ Then install Pinocchio:
 ```
 sudo apt-get install ros-humble-pinochio
 ```
+
+### Meshcat-Cpp
+Meshcat is a tool to visualize robots in the browser. It is not necessary for the collision checking, but it is a nice tool to have. This dependency is directly resolved in the CMakeLists.txt file as it needs to be compiled.
+
+
+### Plog
+The example uses Plog as logging library. This dependency is also directly resolved in the CMakeLists.txt.
 
 ## Example Usage
 The /src folder contains a simple example of how to use Pinocchio to run collision checking of a robot with a static environment. Build using CMake and run the executable. Also check the CMakeLists.txt file for the necessary dependencies.
