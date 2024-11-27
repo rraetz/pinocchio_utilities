@@ -42,11 +42,15 @@ FetchContent_MakeAvailable(MeshcatCpp)
 find_package(Threads REQUIRED)
 list(APPEND CMAKE_PREFIX_PATH "/opt/openrobots") # Default install path of Pinocchio
 find_package(pinocchio REQUIRED)
+find_package(hpp-fcl REQUIRED)
 
 
 add_executable(${PROJECT_NAME}
     src/example.cpp
 )
+
+message(STATUS "Pinocchio include dir: ${pinocchio_INCLUDE_DIRS}")
+message(STATUS "hpp-fcl include dir: ${hpp-fcl_INCLUDE_DIRS}")
 
 # Include directories
 target_include_directories(${PROJECT_NAME}
@@ -55,6 +59,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE ${PYBIND11_INCLUDE_DIR}
     PRIVATE ${pinocchio_SOURCE_DIR}/include
     PRIVATE ${MeshcatCpp_SOURCE_DIR}/include
+    PRIVATE ${hpp-fcl_INCLUDE_DIRS}
 )
 
 # Link libraries
@@ -62,6 +67,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE Threads::Threads
     PRIVATE pinocchio::pinocchio
     PRIVATE MeshcatCpp::MeshcatCpp
+    PRIVATE hpp-fcl::hpp-fcl
 )
 
 # Logging

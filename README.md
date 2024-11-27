@@ -1,8 +1,7 @@
 # Purpose
 This is a collection of utility functions to be used with the wonderful [Pinocchio](https://stack-of-tasks.github.io/pinocchio/) library for robotics.
 
-# Instructions
-## Install dependencies:
+# Dependencies
 ### Pinocchio
 On an x86_64 platform, you can install Pinocchio as indicated [here](https://stack-of-tasks.github.io/pinocchio/download.html). Below are instructions for non-x86_64 platforms. The easiest is to install it through ROS2 as the binaries are already available.
 
@@ -45,7 +44,7 @@ Meshcat is a tool to visualize robots in the browser. It is not necessary for th
 ### Plog
 The example uses Plog as logging library. This dependency is also directly resolved in the CMakeLists.txt.
 
-## Example Usage
+# Example Usage
 The /src folder contains a simple example of how to use Pinocchio to run collision checking of a robot with a static environment. Build using CMake: 
 ```
 mkdir build && cd build

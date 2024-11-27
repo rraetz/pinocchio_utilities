@@ -179,3 +179,27 @@ void load_robot_from_urdf(
     }
     geom_data = pinocchio::GeometryData(geom_model);
 }
+
+
+// In case where Pinocchio was not built with HPP-FCL, but HPP-FCL is still installed independently
+void compute_collisions(
+    const pinocchio::GeometryModel &geom_model, 
+    pinocchio::GeometryData &geom_data)
+{
+    for (size_t pair_index = 0; pair_index < geom_model.collisionPairs.size(); ++pair_index)
+    {
+        const auto &pair = geom_model.collisionPairs[pair_index];
+        const auto &first = pair.first;
+        const auto &second = pair.second;
+        auto &collision_request = geom_data.collisionRequests[pair_index];
+        auto &collision_result = geom_data.collisionResults[pair_index];
+        collision_result.clear();
+        const auto &geom1 = geom_model.geometryObjects[first].geometry.get();
+        const auto &geom2 = geom_model.geometryObjects[second].geometry.get();
+        const auto &first_SE3 = geom_data.oMg[first];
+        const auto &second_SE3 = geom_data.oMg[second];
+        const auto T1 = hpp::fcl::Transform3f(first_SE3.rotation(), first_SE3.translation());
+        const auto T2 = hpp::fcl::Transform3f(second_SE3.rotation(), second_SE3.translation());
+        hpp::fcl::collide(geom1, T1, geom2, T2, collision_request, collision_result);
+    }
+}

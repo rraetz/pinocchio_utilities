@@ -11,6 +11,8 @@
 
 
 
+
+
 int main()
 {
     ///////////////////////////////////////////
@@ -71,9 +73,10 @@ int main()
         pinocchio::forwardKinematics(robot_model, robot_data, q);
         pinocchio::updateGeometryPlacements(robot_model, robot_data, combined_geom_model, combined_geom_data);
 
-        pinocchio::computeCollisions(combined_geom_model, combined_geom_data);
+        // pinocchio::computeCollisions(combined_geom_model, combined_geom_data);
+        compute_collisions(combined_geom_model, combined_geom_data);
         has_collision(combined_geom_model, combined_geom_data);
-        // compute_distances(combined_geom_model, combined_geom_data);
+        // // compute_distances(combined_geom_model, combined_geom_data);
 
         auto end_time = std::chrono::high_resolution_clock::now();
         auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
